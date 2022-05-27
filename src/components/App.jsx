@@ -1,20 +1,29 @@
 import React, { Component } from 'react';
-// import shortid from 'shortid';
+import { ToastContainer } from 'react-toastify';
+import Searchbar from './Searchbar';
+import ImageGallery from './ImageGallery';
 import Modal from './Modal';
+// import Button from './Button';
+import './App.module.css';
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 
 
 export class App extends Component {
   state = {
+    inputValue: '',
     showModal: false,
+    
   }
 
   componentDidMount() {
-
   }
 
-  componentWillUnmount() {
 
+  componentWillUnmount() {
+  }
+
+  handleSearchbarSubmit = inputValue => {
+    this.setState({ inputValue });
   }
 
   toggleModal = () => {
@@ -25,17 +34,21 @@ export class App extends Component {
   
 
   render() {
-    const { showModal } = this.state;
+    const { inputValue, showModal } = this.state;
 
     return (
       <div>
+        <Searchbar onSubmit={this.handleSearchbarSubmit} />
+        
+        <ImageGallery inputTag={inputValue}/>
 
-        <ImageGalleryItem />
         {showModal && (
           <Modal onClose={this.toggleModal}>
             <img src="" alt="" />
           </Modal>
         )}
+
+        <ToastContainer />
        
       </div>
   );
