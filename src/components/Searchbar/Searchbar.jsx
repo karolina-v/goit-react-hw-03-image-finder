@@ -1,54 +1,48 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
+import { toast } from 'react-toastify';
 import s from './Searchbar.module.css';
 
+class Searchbar extends React.Component {
+  state = {
+    searchbar: '',
+  };
 
-class Searchbar extends Component {
-    state = {
-        inputValue: '',
+  handleInputChange = event => {
+    this.setState({ searchbar: event.currentTarget.value.toLowerCase() });
+  };
+
+  handleSubmit = event => {
+    event.preventDefault();
+
+    if (this.state.searchbar.trim() === '') {
+      toast.error('Введите ключевое слово!');
+      return;
     }
+    this.props.onNameSubmit(this.state.searchbar);
+    this.setState({ searchbar: '' });
+  };
 
-    handleSubmit = e => {
-        e.preventDefault();
+  render() {
+    return (
+      <header className={s.Searchbar}>
+        <form onSubmit={this.handleSubmit} className={s.SearchForm}>
+          <button type="submit" className={s.SearchFormButton}>
+            <span className={s.SearchFormButtonLabel}>Search</span>
+          </button>
 
-        if (this.state.inputValue.trim() === '') {
-            alert("Введите ключевое слово!");
-            return;
-        }
-
-        this.props.onSubmit(this.state.inputValue);
-        this.setState({ inputValue: '' });
-    }
-
-    handleInputValueChange = e => {
-        this.setState({ inputValue: e.currentTarget.value.toLowerCase() });
-    }
-
-    render() {
-        const { inputValue } = this.state;
-        return (
-            <header className={s.searchbar}>
-                <form onSubmit={this.handleSubmit} className={s.searchForm}>
-                    <button type="submit" className={s.searchForm__button}>
-                        <span className={s.searchForm__button_label}>Search</span>
-                    </button>
-
-                    <input
-                        className={s.searchForm__input}
-                        type="text"
-                        autoComplete="off"
-                        autoFocus
-                        placeholder="Search images and photos"
-                        value={inputValue}
-                        name="inputValue"
-                        onChange={this.handleInputValueChange}
-                    />
-                </form>
-            </header>
-        )
-    }
+          <input
+            className={s.SearchFormInput}
+            type="text"
+            autoComplete="off"
+            autoFocus
+            placeholder="Search images and photos"
+            value={this.state.searchbar}
+            onChange={this.handleInputChange}
+          />
+        </form>
+      </header>
+    );
+  }
 }
 
 export default Searchbar;
-
-

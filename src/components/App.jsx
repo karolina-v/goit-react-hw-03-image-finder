@@ -1,59 +1,33 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
-import Modal from './Modal';
-// import Button from './Button';
-import './App.module.css';
-import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
+import s from './App.module.css';
 
-
-export class App extends Component {
+export class App extends React.Component {
   state = {
     inputValue: '',
-    showModal: false,
-    
-  }
+    searchbar: '',
+  };
 
-  componentDidMount() {
-  }
-
-
-  componentWillUnmount() {
-  }
-
-  handleSearchbarSubmit = inputValue => {
-    this.setState({ inputValue });
-  }
-
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal
-    }))
-  }
   
+  handleFormSubmit = inputValue => {
+    this.setState({ inputValue });
+  };
 
   render() {
-    const { inputValue, showModal } = this.state;
-
+    const { inputValue } = this.state;
     return (
-      <div>
-        <Searchbar onSubmit={this.handleSearchbarSubmit} />
-        
-        <ImageGallery inputTag={inputValue}/>
+      <div className={s.App}>
+        <Searchbar onNameSubmit={this.handleFormSubmit} />
 
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            <img src="" alt="" />
-          </Modal>
-        )}
+        <ImageGallery imageName={inputValue}></ImageGallery>
 
-        <ToastContainer />
-       
+        <ToastContainer autoClose={3000} />
       </div>
-  );
+    );
   }
-  
-};
+}
 
-
+// export default App;
