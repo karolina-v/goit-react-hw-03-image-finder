@@ -1,61 +1,83 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import imagesAPI from '../../services/images-api';
+import { toast } from 'react-toastify';
 import s from './ImageGallery.module.css';
 import ImageGalleryItem from '../ImageGalleryItem';
 import Button from '../Button';
 import Modal from '../Modal';
+import { Spinner } from '../Loader';
 
 
 class ImageGallery extends Component {
   state = {
     images: [],
+    page: 1,
     error: null,
     status: 'idle',
-    page: 1,
+    showImage: null,
+    totalHits: null,
+    loadMore: false,
   };
 
+  
   componentDidUpdate(prevProps, prevState) {
     const prevValue = prevProps.inputValue;
     const nextValue = this.props.inputValue;
 
+
+    const { page, totalHits } = this.state;
+
     if (prevValue !== nextValue) {
-      this.setState({ status: 'pending', page: 1 });
+      this.setState({
+        status: 'pending',
+        page: 1,
+        images: [],
+        loadMore: false,
+      });
 
       imagesAPI
-        .fetchImage(nextValue, this.state.page)
-        .then(images => {
-          if (images.total === 0) {
-            this.setState({
-              error: 'По вашему запросу ничего не найдено!',
-              status: 'rejected',
-            });
-          } else {
+        .fetchImages(nextValue, page)
+        .then(data => {
+            this.setState({ totalHits: data.totalHits });
+            return data.hits;
+          })
+          .then(images => {
+            if (images.length === 0) {
+              this.setState({
+                images,
+                status: 'idle',
+              });
+              toast.error('По вашему запросу ничего не найдено!');
+              return;
+            }
+            this.setState({ images, status: 'resolved', loadMore: true });
+          })
+          .catch(error => this.setState({ error, status: 'rejected' }));
+    }
+
+     if (page !== prevState.page && prevValue === nextValue) {
+       this.setState({ status: 'pending' });
+       
+       if (totalHits === 0 && totalHits/12 <= page) {
+        this.setState({ loadMore: false });
+      }
+
+      imagesAPI
+        .fetchImages(nextValue, page)
+        .then(data => data.hits)
+          .then(newImages =>
             this.setState(prevState => ({
-              images: images.hits,
+              images: [...prevState.images, ...newImages],
               status: 'resolved',
-            }));
-          }
-        })
-        .catch(error => this.setState({ error, status: 'rejected' }));
-    }
+            })),
+          )
+          .catch(error => this.setState({ error, status: 'rejected' }));
+      }
 
-    if (this.state.page !== 1) {
-      imagesAPI
-        .fetchImage(this.props.inputValue, this.state.page)
-        .then(images =>
-          this.setState(prevState => ({
-            images: [...prevState.images, ...images.hits],
-            status: 'resolved',
-          })),
-        )
-        .then(() => {
-          window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth',
-          });
-        })
-        .catch(error => this.setState({ error, status: 'rejected' }));
-    }
+      window.scrollTo({
+                top: document.documentElement.scrollHeight,
+                behavior: 'smooth',
+              });
   }
 
   loadMore = () => {
@@ -64,52 +86,46 @@ class ImageGallery extends Component {
     }));
   };
 
+   closeModal = () => {
+    this.setState({ showImage: null });
+  };
   
-  openModal = (largeImageUR, alt) => {
-    this.setState({
-      largeImageURL: largeImageUR,
-      alt: alt,
-    });
+   openModal = image => {
+    this.setState({ showImage: image });
   };
- 
-  closeModal = () => {
-    this.setState({
-      largeImageURL: '',
-      alt: '',
-    });
-  };
+  
 
   render() {
-    const { error, status, largeImageURL, alt } = this.state;
-    const images = this.state.images;
+    const { status, images, showImage, loadMore, error } = this.state;
 
-
-    // if (status === 'pending') {
-    //   return <Loader />;
-    // }
-
+    if (status === 'pending') {
+      return <Spinner />;
+    }
 
     if (status === 'resolved') {
       return (
         <ul className={s.ImageGallery}>
-          {images.map(img => {
+          {images.map((img, idx) => {
             return (
               <ImageGalleryItem
-                key={img.id}
+                image={img}
+                key={idx}
                 alt={img.tags}
+                id={img.id}
                 webformatURL={img.webformatURL}
-                largeImageURL={img.largeImageURL}
-                onOpenModal={this.openModal}
+                openModal={this.openModal}
               />
             );
           })}
 
-          <Button LoadMore={this.loadMore} />
+          {loadMore &&
+            <Button onClick={this.loadMore} />
+          }
     
-          {largeImageURL && (
+          {showImage && (
             <Modal
-              largeImageURL={largeImageURL}
-              alt={alt}
+              src={showImage.largeImageURL}
+              alt={showImage.tags}
               onClose={this.closeModal}
             />
           )}

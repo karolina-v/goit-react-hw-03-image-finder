@@ -3,27 +3,27 @@ import PropTypes from 'prop-types';
 import s from './ImageGalleryItem.module.css';
 
 const ImageGalleryItem = ({
+  image,
+  alt,
+  id,
   webformatURL,
-  tags,
-  largeImageURL,
-  openModal,
+  openModal
 }) => {
   return (
     <li className={s.ImageGalleryItem}
       onClick={() => {
-        openModal(largeImageURL, tags);
+        openModal(image);
       }}
     >
-      <img src={webformatURL} alt={tags} className={s.ImageGalleryItemImage} />
+      <img src={webformatURL} id={id} alt={alt} className={s.ImageGalleryItemImage} />
     </li>
   );
 };
 
 ImageGalleryItem.propTypes = {
   webformatURL: PropTypes.string.isRequired,
-  tags: PropTypes.string.isRequired,
-  largeImageURL: PropTypes.string.isRequired,
-  openModal: PropTypes.string.isRequired,
+  alt: PropTypes.string.isRequired,
+  openModal: PropTypes.func.isRequired,
 };
 
 export default ImageGalleryItem;

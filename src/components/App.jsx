@@ -22,7 +22,7 @@ export class App extends React.Component {
       <div className={s.App}>
         <Searchbar onNameSubmit={this.handleFormSubmit} />
 
-        <ImageGallery imageName={inputValue}></ImageGallery>
+        <ImageGallery inputValue={inputValue}></ImageGallery>
 
         <ToastContainer autoClose={3000} />
       </div>

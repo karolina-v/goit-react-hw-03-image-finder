@@ -6,11 +6,11 @@ const modalRoot = document.querySelector('#modal-root');
 
 class Modal extends Component {
   componentDidMount() {
-    window.addEventListener('keydown', this.onEscClick);
+    window.addEventListener('keydown', this.onEscape);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keydown', this.onEscClick);
+    window.removeEventListener('keydown', this.onEscape);
   }
 
   onEscape = e => {
@@ -29,7 +29,7 @@ class Modal extends Component {
     return createPortal(
       <div className={s.Overlay} onClick={this.onBackdropClick}>
         <div className={s.Modal}>
-          <img src={this.props.largeImageURL} alt={this.props.alt} />
+          <img src={this.props.src} alt={this.props.alt} />
         </div>
       </div>,
       modalRoot,
